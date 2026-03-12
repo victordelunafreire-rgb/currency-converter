@@ -81,6 +81,8 @@ function bannerHigh() {
     currencyNameFrom.innerText = currencyFrom.charAt(0).toUpperCase() + currencyFrom.slice(1)
     currencyNameTo.innerText = currencyTo.charAt(0).toUpperCase() + currencyTo.slice(1)
 
+    convertValues()
+
 }
 
 
