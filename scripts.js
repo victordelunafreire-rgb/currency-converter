@@ -13,6 +13,7 @@ const exchangeRates = {
     bitcoin: 0.000014
 }
 
+// "dicionário das siglas"
 const currencyCodes = {
     dolar: "USD",
     real: "BRL",
@@ -21,6 +22,7 @@ const currencyCodes = {
     bitcoin: "BTC"
 }
 
+// "dicionário dos idiomas"
 const currencyLocations = {
     dolar: "en-US",
     real: "pt-BR",
@@ -29,6 +31,7 @@ const currencyLocations = {
     bitcoin: "en-US"
 }
 
+// "dicionário das bandeiras e símbolos"
 const nationFlags = {
     dolar: "./assets/dolar.png",
     real: "./assets/real.png",
@@ -43,7 +46,7 @@ function convertValues() {
     const currencyFrom = document.querySelector(".currency-select-from").value
     const currencyTo = document.querySelector(".currency-select-to").value
 
-    // 2. A sua Linha de Ouro fazendo a matemática dinâmica
+    // Coração matemático da função
     const currencyValueConverted = (userInput / exchangeRates[currencyFrom]) * exchangeRates[currencyTo]
 
 
@@ -64,15 +67,15 @@ function bannerHigh() {
     const currencyFrom = document.querySelector(".currency-select-from").value
     const currencyTo = document.querySelector(".currency-select-to").value
    
-    // Onde a foto vai ficar? (Capturamos as IMAGENS pelos IDs que estão no seu HTML)
+    // Captura as IMAGENS pelos IDs que estão no seu HTML)
     const flagImageFrom = document.getElementById("selected-currency-box")
     const flagImageTo = document.getElementById("selected-currency-box-2")
 
-    // 3. Montagem final: Troca o .src da imagem buscando o caminho no seu dicionário nationFlags
+    // Troca o .src da imagem buscando o caminho no seu dicionário nationFlags
     flagImageFrom.src = nationFlags[currencyFrom]
     flagImageTo.src = nationFlags[currencyTo]
 
-    // Extra: Se quiser que o texto com o nome da moeda também mude:
+    // Torca o texto com o nome da moeda
     const currencyNameFrom = document.getElementById("currency-name-from")
     const currencyNameTo = document.getElementById("currency-name")
 
@@ -86,7 +89,6 @@ function bannerHigh() {
 }
 
 
-// 2. Cria o "Ouvinte de Eventos" que dispara a sua função quando o clique acontece (essa tem que ficar no final)
 convertButton.addEventListener("click", convertValues)
-selectedIncome.addEventListener("change", bannerHigh)//função que troca as bandeiras
+selectedIncome.addEventListener("change", bannerHigh) //função que troca as bandeiras
 selectedOutcome.addEventListener("change", bannerHigh)
