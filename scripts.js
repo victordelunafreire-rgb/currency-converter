@@ -1,79 +1,109 @@
 const convertButton = document.querySelector(".convert-button")
-const currencySelect = document.querySelector(".currency-select")
+const convertedIncome = document.querySelector(".currency-value-to-convert")
+const convertedOutcome = document.querySelector(".currency-value")
+const selectedIncome = document.querySelector(".currency-select-from")
+const selectedOutcome = document.querySelector(".currency-select-to")
 
 
-function convertValues() {
-    const inputCurencyValue = document.querySelector(".input-currency").value
-    const currencyValueToConvert = document.querySelector(".currency-value-to-convert") //Valor em Real
-    const currencyValueConverted = document.querySelector(".currency-value") //Outras moedas
 
-    const dolarToday = 5.2
-    const euroToday = 6.2
-    const libraToday = 6.99
-    const bitcoinToday = 367088.82
+// Nosso "dicionário" de taxas simulando a API
+
+// "dicionário das siglas"
+const currencyCodes = {
+    dolar: "USD",
+    real: "BRL",
+    euro: "EUR",
+    libra: "GBP",
+    bitcoin: "BTC"
+}
+
+// "dicionário dos idiomas"
+const currencyLocations = {
+    dolar: "en-US",
+    real: "pt-BR",
+    euro: "de-DE",
+    libra: "en-GB",
+    bitcoin: "en-US"
+}
+
+// "dicionário das bandeiras e símbolos"
+const nationFlags = {
+    dolar: "./assets/dolar.png",
+    real: "./assets/real.png",
+    euro: "./assets/euro.png",
+    libra: "./assets/libra.png",
+    bitcoin: "./assets/bitcoin.png"
+}
+
+async function convertValues() {
+    // 1. Capturamos o que está na tela (os valores)
+    const userInput = document.querySelector(".input-currency").value
+    const currencyFrom = selectedIncome.value
+    const currencyTo = selectedOutcome.value
+
+    try {
+        const data = await fetch("https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL,GBP-BRL").then(response => response.json())
 
 
-    if (currencySelect.value == "dolar") {
-        currencyValueConverted.innerHTML = new Intl.NumberFormat("en-US", {
+        const exchangeRates = {
+            real: 1,
+            dolar: data.USDBRL.high,
+            euro: data.EURBRL.high,
+            libra: data.GBPBRL.high,
+            bitcoin: data.BTCBRL.high
+        }
+        // Coração matemático da função
+        // Primeiro converte tudo para Real multiplicando
+        const valueReal = userInput * exchangeRates[currencyFrom]
+
+        // Depois converter do Real para a moeda de destino dividindo
+        const currencyValueConverted = valueReal / exchangeRates[currencyTo]
+
+
+        convertedIncome.innerHTML = new Intl.NumberFormat(currencyLocations[currencyFrom], {
             style: "currency",
-            currency: "USD"
-        }).format(inputCurencyValue / dolarToday)
-    }
+            currency: currencyCodes[currencyFrom]
+        }).format(userInput)
 
-    if (currencySelect.value == "euro") {
-        currencyValueConverted.innerHTML = new Intl.NumberFormat("de-DE", {
+        convertedOutcome.innerHTML = new Intl.NumberFormat(currencyLocations[currencyTo], {
             style: "currency",
-            currency: "EUR"
-        }).format(inputCurencyValue / euroToday)
-    }
+            currency: currencyCodes[currencyTo]
+        }).format(currencyValueConverted)
 
-    if (currencySelect.value == "libra") {
-        currencyValueConverted.innerHTML = new Intl.NumberFormat("en-UK", {
-            style: "currency",
-            currency: "GBP"
-        }).format(inputCurencyValue / libraToday)
+    } catch (error) {
+        console.log("Ops!")
+        alert("Ops! Falha na conexão com o servidor de câmbio. Verifique a sua internet e tente novamente.")
     }
-
-    if (currencySelect.value == "bitcoin") {
-        currencyValueConverted.innerHTML = new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "BTC"
-        }).format(inputCurencyValue / bitcoinToday)
-    }
-
-    currencyValueToConvert.innerHTML = new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-    }).format(inputCurencyValue)
 
 }
 
-function changeCurrency() {
-    const currencyImage = document.getElementById("selected-currency")
-    const currencyName = document.getElementById("currency-name")
+function bannerHigh() {
 
-    if (currencySelect.value == "dolar") {
-        currencyImage.src = "/assets/dolar.png"
-        currencyName.innerHTML = "Dólar"
-    }
+    const currencyFrom = selectedIncome.value
+    const currencyTo = selectedOutcome.value
 
-    if (currencySelect.value == "euro") {
-        currencyImage.src = "/assets/euro.png"
-        currencyName.innerHTML = "Euro"
-    }
+    // Captura as IMAGENS pelos IDs que estão no seu HTML)
+    const flagImageFrom = document.getElementById("selected-currency-box")
+    const flagImageTo = document.getElementById("selected-currency-box-2")
 
-    if (currencySelect.value == "libra") {
-        currencyImage.src = "/assets/libra.png"
-        currencyName.innerHTML = "Libra"
-    }
+    // Troca o .src da imagem buscando o caminho no seu dicionário nationFlags
+    flagImageFrom.src = nationFlags[currencyFrom]
+    flagImageTo.src = nationFlags[currencyTo]
 
-    if (currencySelect.value == "bitcoin") {
-        currencyImage.src = "/assets/bitcoin.png"
-        currencyName.innerHTML = "Bitcoin"
-    }
+    // Torca o texto com o nome da moeda
+    const currencyNameFrom = document.getElementById("currency-name-from")
+    const currencyNameTo = document.getElementById("currency-name")
+
+    // Aqui usamos uma lógica simples: o nome exibido será a própria chave do dicionário (dolar, real, etc)
+    // Mas com a primeira letra maiúscula para ficar bonito
+    currencyNameFrom.innerText = currencyFrom.charAt(0).toUpperCase() + currencyFrom.slice(1)
+    currencyNameTo.innerText = currencyTo.charAt(0).toUpperCase() + currencyTo.slice(1)
 
     convertValues()
+
 }
 
-currencySelect.addEventListener("change", changeCurrency)
+
 convertButton.addEventListener("click", convertValues)
+selectedIncome.addEventListener("change", bannerHigh) //função que troca as bandeiras
+selectedOutcome.addEventListener("change", bannerHigh)
