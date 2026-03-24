@@ -4,14 +4,9 @@ const convertedOutcome = document.querySelector(".currency-value")
 const selectedIncome = document.querySelector(".currency-select-from")
 const selectedOutcome = document.querySelector(".currency-select-to")
 
+
+
 // Nosso "dicionário" de taxas simulando a API
-const exchangeRates = {
-    dolar: 1.00,
-    real: 5.20,
-    euro: 0.84,
-    libra: 0.74,
-    bitcoin: 0.000014
-}
 
 // "dicionário das siglas"
 const currencyCodes = {
@@ -40,33 +35,53 @@ const nationFlags = {
     bitcoin: "./assets/bitcoin.png"
 }
 
-function convertValues() {
+async function convertValues() {
     // 1. Capturamos o que está na tela (os valores)
     const userInput = document.querySelector(".input-currency").value
-    const currencyFrom = document.querySelector(".currency-select-from").value
-    const currencyTo = document.querySelector(".currency-select-to").value
+    const currencyFrom = selectedIncome.value
+    const currencyTo = selectedOutcome.value
 
-    // Coração matemático da função
-    const currencyValueConverted = (userInput / exchangeRates[currencyFrom]) * exchangeRates[currencyTo]
+    try {
+        const data = await fetch("https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL,GBP-BRL").then(response => response.json())
 
 
-    convertedIncome.innerHTML = new Intl.NumberFormat(currencyLocations[currencyFrom], {
-        style: "currency",
-        currency: currencyCodes[currencyFrom]
-    }).format(userInput)
+        const exchangeRates = {
+            real: 1,
+            dolar: data.USDBRL.high,
+            euro: data.EURBRL.high,
+            libra: data.GBPBRL.high,
+            bitcoin: data.BTCBRL.high
+        }
+        // Coração matemático da função
+        // Primeiro converte tudo para Real multiplicando
+        const valueReal = userInput * exchangeRates[currencyFrom]
 
-    convertedOutcome.innerHTML = new Intl.NumberFormat(currencyLocations[currencyTo], {
-        style: "currency",
-        currency: currencyCodes[currencyTo]
-    }).format(currencyValueConverted)
+        // Depois converter do Real para a moeda de destino dividindo
+        const currencyValueConverted = valueReal / exchangeRates[currencyTo]
+
+
+        convertedIncome.innerHTML = new Intl.NumberFormat(currencyLocations[currencyFrom], {
+            style: "currency",
+            currency: currencyCodes[currencyFrom]
+        }).format(userInput)
+
+        convertedOutcome.innerHTML = new Intl.NumberFormat(currencyLocations[currencyTo], {
+            style: "currency",
+            currency: currencyCodes[currencyTo]
+        }).format(currencyValueConverted)
+
+    } catch (error) {
+        console.log("Ops!")
+        alert("Ops! Falha na conexão com o servidor de câmbio. Verifique a sua internet e tente novamente.")
+    }
 
 }
 
 function bannerHigh() {
 
-    const currencyFrom = document.querySelector(".currency-select-from").value
-    const currencyTo = document.querySelector(".currency-select-to").value
-   
+    const currencyFrom = selectedIncome.value
+    const currencyTo = selectedOutcome.value
+
     // Captura as IMAGENS pelos IDs que estão no seu HTML)
     const flagImageFrom = document.getElementById("selected-currency-box")
     const flagImageTo = document.getElementById("selected-currency-box-2")
